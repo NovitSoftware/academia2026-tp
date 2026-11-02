@@ -1,0 +1,11 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.venv/
+.env
+.claude/
+muestra-*.wav
+# Cielo y texturas de Poly Haven: se bajan al compilar con visor/scripts/bajar-assets.mjs
+visor/public/ph/
+muestras-voz/
