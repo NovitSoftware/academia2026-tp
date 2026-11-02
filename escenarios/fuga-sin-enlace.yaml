@@ -1,0 +1,12 @@
+nombre: fuga-sin-enlace
+descripcion: >
+  Con el enlace caído, se rompe un niple en la descarga de la uno y sale agua a presión. La alerta
+  de seguridad tiene que salir en el momento, sin nube. La foto muestra daño estructural.
+semilla: 303
+velocidad: 360   # 10 s reales = 1 hora de planta
+inicio: "2026-11-05T09:00:00-03:00"
+duracion: 8h
+eventos:
+  - {en: 10m, accion: enlace, estado: caido, duracion: 3h}
+  - {en: 40m, accion: seguridad, codigo: S1, equipo: B-101}
+  - {en: 2h, accion: fin_seguridad}

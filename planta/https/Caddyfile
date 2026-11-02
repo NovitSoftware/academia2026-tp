@@ -1,0 +1,22 @@
+# HTTPS para la red local con una autoridad certificante propia de Caddy (tls internal).
+# El celular entra por https://<PLANTA_HOST>:8443 y baja el certificado raíz de http://<PLANTA_HOST>:8090.
+{
+	# Los celulares que entran por IP no mandan nombre de servidor (SNI): se usa este.
+	default_sni {$PLANTA_HOST}
+	skip_install_trust
+	auto_https disable_redirects
+}
+
+https://{$PLANTA_HOST}:8443, https://localhost:8443 {
+	tls internal
+	reverse_proxy visor:80
+}
+
+# El certificado raíz, para instalarlo en el celular y que no aparezca la advertencia.
+http://:8090 {
+	root * /data/caddy/pki/authorities/local
+	rewrite / /root.crt
+	header /root.crt Content-Type application/x-x509-ca-cert
+	header /root.crt Content-Disposition "attachment; filename=planta-ca.crt"
+	file_server
+}

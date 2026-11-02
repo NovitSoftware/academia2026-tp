@@ -1,0 +1,7 @@
+nombre: libre
+descripcion: Planta en operación continua con fallas aleatorias. Es el modo para desarrollar.
+semilla: 2026
+velocidad: 360   # 10 s reales = 1 hora de planta
+precalentamiento_dias: 21
+fallas_aleatorias: true
+eventos: []

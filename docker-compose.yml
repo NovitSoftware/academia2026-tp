@@ -1,0 +1,81 @@
+# Planta de inyección simulada · Academia Novit 2026
+#
+#   docker compose up -d --build
+#
+# Visor 3D:  http://localhost:8080   (desde el celular: https://<IP>:8443, ver README)
+# Visor 2D:  http://localhost:8081   (plano de la planta y vista lateral de las bombas)
+# API:       http://localhost:8100/docs
+# MQTT:      localhost:1883 (desde la red de planta: broker:1883)
+#
+# Tu sistema se conecta a la red "planta-lan" (ver docs/contrato.md).
+
+name: planta
+
+services:
+  broker:
+    image: eclipse-mosquitto:2.0.20
+    volumes:
+      - ./planta/broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports: ["${PLANTA_PUERTO_MQTT:-1883}:1883"]
+    networks: [planta-lan, control]
+    restart: unless-stopped
+
+  enlace:
+    build: ./planta/enlace
+    environment:
+      ENLACE_LATENCIA_MS: "180"
+    networks: [planta-lan, control]
+    restart: unless-stopped
+
+  sim:
+    build:
+      context: .
+      dockerfile: planta/sim/Dockerfile
+    environment:
+      PLANTA_ESCENARIO: ${PLANTA_ESCENARIO:-libre}
+      PLANTA_BROKER: broker
+      PLANTA_ENLACE_URL: http://enlace:8081
+      PLANTA_CORRECCION: ${PLANTA_CORRECCION:-}
+    volumes:
+      - planta-media:/data/media
+      # Notas de los escenarios grabadas por personas desde /operador: quedan en el repo.
+      - ./datos/audios:/app/datos/audios
+      # Para simular el corte de luz: apaga de golpe los contenedores con la etiqueta academia.planta=pc
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports: ["${PLANTA_PUERTO_API:-8100}:8100"]
+    networks: [planta-lan, control]
+    depends_on: [broker, enlace]
+    restart: unless-stopped
+
+  visor:
+    build: ./visor
+    ports: ["${PLANTA_PUERTO_VISOR:-8080}:80", "${PLANTA_PUERTO_PLANO:-8081}:8081"]
+    networks: [control]
+    depends_on: [sim]
+    restart: unless-stopped
+
+  # HTTPS para abrir el visor desde un celular de la red local: el micrófono solo anda con HTTPS.
+  # PLANTA_HOST es la IP de esta máquina en la red (ver README, "Desde el celular").
+  https:
+    image: caddy:2.8.4-alpine
+    environment:
+      PLANTA_HOST: ${PLANTA_HOST:-localhost}
+    volumes:
+      - ./planta/https/Caddyfile:/etc/caddy/Caddyfile:ro
+      - planta-https:/data
+    ports: ["${PLANTA_PUERTO_HTTPS:-8443}:8443", "${PLANTA_PUERTO_CA:-8090}:8090"]
+    networks: [control]
+    depends_on: [visor]
+    restart: unless-stopped
+
+networks:
+  # Red de la planta: sin salida a internet. Lo único que sale es por el proxy "enlace".
+  planta-lan:
+    name: ${PLANTA_RED:-planta}-lan
+    internal: true
+  control:
+    name: ${PLANTA_RED:-planta}-control
+
+volumes:
+  planta-media:
+  planta-https:

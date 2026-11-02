@@ -1,0 +1,35 @@
+/* Control del tiempo de la planta, dentro de la cabecera. */
+
+#tiempo { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); display: grid; gap: 8px; }
+#tiempo .velocidades { display: flex; gap: 8px; align-items: center; }
+#rng-vel { flex: 1; min-width: 0; accent-color: var(--novit-celeste); }
+#tiempo .multiplicador { display: flex; align-items: center; gap: 2px; font: 700 13px var(--font); color: var(--t-2); }
+#num-vel { width: 64px; font: 700 13px var(--font); color: var(--t-1); background: var(--celda); border: 1px solid var(--borde);
+  border-radius: var(--radius); padding: 6px 6px; font-variant-numeric: tabular-nums; }
+#num-vel:focus { outline: 2px solid var(--novit-celeste); outline-offset: 1px; }
+#tiempo button { font: 700 11px var(--font); letter-spacing: .04em; color: var(--t-2); background: var(--celda); border: 1px solid var(--borde);
+  border-radius: var(--radius); padding: 7px 0; cursor: pointer; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-variant-numeric: tabular-nums; transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
+#tiempo button:hover { background: var(--celda-hover); color: var(--t-1); }
+#tiempo button.activo { color: var(--t-1); border-color: var(--novit-celeste); background: rgba(61, 176, 228, .14); }
+#tiempo button:focus-visible { outline: 2px solid var(--novit-celeste); outline-offset: 1px; }
+#tiempo #btn-pausa { flex: 0 0 34px; }
+#tiempo #btn-pausa .icono rect { fill: currentColor; stroke: none; }
+#tiempo .siguiente { padding: 9px 0; letter-spacing: .08em; text-transform: uppercase; }
+#tiempo .siguiente .icono polygon { fill: currentColor; }
+#tiempo .siguiente[disabled] { opacity: .5; cursor: wait; }
+#proximo { font-size: 12px; color: var(--t-3); }
+#proximo b { color: var(--t-1); font-weight: 700; }
+#tiempo .auto { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t-3); cursor: pointer; }
+#tiempo .auto input { accent-color: var(--novit-celeste); margin: 0; }
+#aviso-lento { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--t-1); background: rgba(61, 176, 228, .1);
+  border: 1px solid rgba(61, 176, 228, .35); border-radius: var(--radius); padding: 6px 6px 6px 10px; }
+#aviso-lento span { flex: 1; }
+#aviso-lento button { flex: 0 0 auto; padding: 6px 10px; }
+/* La cabecera con el control del tiempo es alta: en pantallas bajas la bitácora deja lugar. */
+#bitacora { max-height: min(268px, calc(100vh - 470px)); }
+@media (max-height: 760px) { #bitacora { display: none; } }
+
+#ayuda-teclas { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); font-size: 12px; color: var(--t-3);
+  background: var(--panel); border: 1px solid var(--borde); border-radius: var(--radius); padding: 6px 12px; pointer-events: none; white-space: nowrap; }
+#ayuda-teclas kbd { font: 700 11px var(--font); color: var(--t-1); border: 1px solid var(--borde-fuerte); border-radius: var(--radius); padding: 1px 5px; margin: 0 2px; }

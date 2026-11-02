@@ -1,0 +1,33 @@
+/* La tablet del operador: un dispositivo real, con su marco, que muestra lo que manda el sistema. */
+
+#tablet { position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); pointer-events: auto; z-index: 3;
+  animation: entrar var(--dur-slow) var(--ease); }
+#tablet .marco { position: relative; background: #15171b; border-radius: 18px; padding: 14px 14px 16px; box-shadow: 0 24px 60px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(255, 255, 255, .08); }
+#tablet .camara-frontal { width: 6px; height: 6px; border-radius: 50%; background: #2a2d33; margin: 0 auto 8px; }
+#tablet .pantalla { background: #F3F6F8; color: #333333; border-radius: 6px; overflow: hidden; font-family: var(--font); }
+#tablet .barra-estado { display: flex; justify-content: space-between; padding: 7px 12px; background: #0A0089; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+#tablet-pantalla { padding: 12px 14px 4px; }
+#tablet .t-titulo { font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #3398DC; margin-bottom: 4px; }
+#tablet .t-texto { margin: 0 0 10px; font-size: 15px; line-height: 1.45; color: #1d1f24; }
+#tablet table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 8px; }
+#tablet th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #8A94A0; padding: 4px 6px; border-bottom: 1px solid #E4E9ED; }
+#tablet td { padding: 5px 6px; border-bottom: 1px solid #EDF0F3; }
+#tablet td.num { font-variant-numeric: tabular-nums; font-weight: 700; color: #0A0089; }
+#tablet .t-opciones { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+#tablet .t-opciones span { font-size: 12.5px; font-weight: 700; padding: 6px 10px; border: 1px solid #3398DC; color: #0A0089; border-radius: 2px; }
+#tablet-respuesta { padding: 0 14px 12px; }
+#tablet .burbuja { display: grid; gap: 2px; background: #fff; border: 1px solid #E4E9ED; border-left: 3px solid #3398DC; padding: 8px 10px; }
+#tablet .burbuja b { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #8A94A0; }
+#tablet .burbuja span { font-size: 14.5px; line-height: 1.4; color: #1d1f24; }
+#tablet .hilo { display: grid; gap: 4px; margin-bottom: 6px; opacity: .75; }
+#tablet .hilo .burbuja span { font-size: 12.5px; }
+#tablet .burbuja.sistema { border-left-color: #0A0089; background: #EDF0F3; }
+#tablet-respuesta { display: grid; gap: 4px; }
+#tablet .esperando { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #8A94A0; }
+#tablet .esperando i { width: 5px; height: 5px; border-radius: 50%; background: #3398DC; animation: latir 1s infinite; }
+#tablet .esperando i:nth-child(2) { animation-delay: .2s; } #tablet .esperando i:nth-child(3) { animation-delay: .4s; }
+#tablet .sin-sonido { display: none; padding: 6px 14px 10px; font-size: 11.5px; color: #8A94A0; }
+body.sin-sonido #tablet .sin-sonido { display: block; }
+#tablet .rotulo-tablet { margin-top: 8px; text-align: center; font-size: 11px; color: var(--t-3); letter-spacing: .04em; }
+/* Mientras la cámara lee la tablet, el texto está en la pantalla de la tablet: sin subtítulo. */
+body.modo-tablet #subtitulo { display: none !important; }

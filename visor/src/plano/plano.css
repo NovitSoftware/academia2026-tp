@@ -1,0 +1,140 @@
+/* Visor 2D: franja de datos arriba, el dibujo en el centro y un cajón con pestañas a la derecha. Nada flota sobre
+   el dibujo salvo lo que aparece a demanda (tablet, planilla, subtítulo, alerta). main.js calcula --abajo-franja
+   (dónde termina la franja) y --ancho-cajon (0 cuando el cajón no está fijo a la derecha). */
+
+:root { --abajo-franja: 116px; --ancho-cajon: 360px; }
+
+body.plano #lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+body.plano #lienzo.arrastrando { cursor: grabbing; }
+body.plano #lienzo.sobre-equipo { cursor: pointer; }
+#etiquetas { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#etiquetas .etiqueta { position: absolute; left: 0; top: 0; will-change: transform; }
+#etiquetas .globo { position: absolute; left: 0; top: 0; }
+
+/* ------------------------------------------------------------------ franja superior */
+
+#franja { left: 12px; right: 12px; top: 12px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
+  border-top: 2px solid var(--novit-celeste); }
+#franja > * { flex: none; }
+#franja .f-marca { display: flex; align-items: center; gap: 12px; }
+#franja .f-marca img { height: 14px; opacity: .9; }
+#franja .f-marca h1 { margin: 0; font-weight: 900; font-size: 24px; letter-spacing: var(--track-tight); line-height: 1; }
+#franja .f-marca span { display: block; font-size: 11.5px; color: var(--t-3); margin-top: 3px; }
+#franja .f-reloj { display: grid; gap: 6px; }
+#franja #reloj { margin: 0; padding: 0; border: 0; gap: 10px; }
+#franja #hora { font-size: 30px; }
+#franja #fecha { font-size: 12px; }
+#franja .chips { margin: 0; }
+#franja #tiempo { margin: 0; padding: 0; border: 0; display: grid; grid-template-columns: 250px auto; gap: 6px 10px; align-items: center; }
+#franja #tiempo .siguiente { padding: 7px 12px; }
+#franja #proximo, #franja #tiempo .auto { grid-column: 1 / -1; font-size: 11.5px; }
+#franja #aviso-lento { grid-column: 1 / -1; }
+
+/* Consumo del sistema: acumulado histórico y desglose por modelo en el extremo derecho. */
+#franja #consumo-tokens { margin-left: auto; min-width: 0; max-width: 100%; flex: 0 1 auto;
+  display: flex; align-items: center; gap: 18px; border-left: 1px solid var(--borde); padding-left: 18px; }
+.consumo-resumen { display: flex; gap: 18px; flex: none; }
+.consumo-metrica { display: grid; gap: 4px; white-space: nowrap; }
+.consumo-rotulo { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t-3); }
+.consumo-metrica b { font-size: 24px; line-height: 1; font-variant-numeric: tabular-nums; }
+.consumo-metrica small { margin-left: 5px; font-size: 11px; color: var(--t-3); }
+.consumo-nota { font-size: 10px; color: var(--t-4); }
+.consumo-desglose { min-width: 0; max-height: 86px; overflow: auto; scrollbar-width: thin; }
+.consumo-desglose table { border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.consumo-desglose th, .consumo-desglose td { padding: 4px 8px; text-align: right; }
+.consumo-desglose thead th { font-size: 10px; font-weight: 400; color: var(--t-3); border-bottom: 1px solid var(--borde); }
+.consumo-desglose th:first-child { text-align: left; }
+.consumo-desglose tbody th { max-width: 150px; overflow: hidden; text-overflow: ellipsis; font-weight: 700; color: var(--t-2); }
+.consumo-desglose .consumo-vacio { text-align: left; color: var(--t-4); white-space: normal; }
+
+/* ------------------------------------------------------------------ cajón derecho con pestañas */
+
+#cajon { right: 12px; top: var(--abajo-franja); bottom: 12px; width: 360px; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+#cajon .pestanas { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; border-bottom: 1px solid var(--borde); flex: none; }
+#cajon .pestanas button { font: 700 11px var(--font); letter-spacing: .08em; text-transform: uppercase; color: var(--t-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 8px 10px; cursor: pointer; }
+#cajon .pestanas button:hover { color: var(--t-1); background: var(--celda-hover); }
+#cajon .pestanas button.activo { color: var(--t-1); border-color: var(--borde-fuerte); background: var(--celda-hover); box-shadow: inset 0 -2px 0 var(--novit-celeste); }
+#cajon .pestanas .cerrar-cajon { margin-left: auto; display: none; padding: 6px; }
+#cajon .contenidos { flex: 1; min-height: 0; overflow: auto; padding: 14px 16px; }
+#cajon .contenidos > .inactivo { display: none !important; }
+#cajon .actividad { display: flex; flex-direction: column; gap: 18px; }
+#inyeccion .kpi-valor { font-size: 44px; margin-top: 16px; }
+#inyeccion .kpi-pie { display: flex; }
+#inyeccion #spark-iny { display: block; height: 96px; margin-top: 18px; }
+#inyeccion .estados { grid-template-columns: 1fr; margin-top: 18px; }
+
+/* Los paneles del 3D, ahora dentro del cajón: sin posición propia ni límites de alto. */
+body.plano #cajon #sistema, body.plano #cajon #bitacora, body.plano #cajon #ficha, body.plano #cajon #leyenda, body.plano #cajon #instructor {
+  position: relative; inset: auto; transform: none; width: auto; max-height: none; overflow: visible; padding: 0; margin: 0;
+  background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; display: block; }
+body.plano #cajon #bitacora .lista li { animation: none; }
+body.plano #cajon #ficha .cerrar { top: -6px; right: -6px; }
+body.plano #cajon #instructor { border-top: 0; }
+
+#leyenda .sub-titulo { margin: 12px 0 5px; }
+#leyenda .sub-titulo:first-child { margin-top: 0; }
+#leyenda ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#leyenda li { display: flex; align-items: center; gap: 9px; font-size: 12.5px; line-height: 1.35; color: var(--t-2); }
+#leyenda li svg { width: 20px; height: 20px; flex: none; }
+#leyenda .pie-leyenda { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--borde); font-size: 11px; color: var(--t-4); }
+
+/* ------------------------------------------------------------------ botonera y lo que aparece a demanda */
+
+body.plano #camaras { left: 12px; right: calc(var(--ancho-cajon) + 24px); bottom: 12px; justify-content: safe center; overflow-x: auto; scrollbar-width: thin; }
+body.plano #camaras button, body.plano #camaras a { white-space: nowrap; flex: none; }
+#btn-cajon { display: none !important; }
+
+/* En el 2D la tablet del operador se ve como panel (en el 3D está en su mano). */
+body.plano #tablet:not(.oculto) { display: block !important; left: auto; right: calc(var(--ancho-cajon) + 24px); bottom: auto; top: calc(var(--abajo-franja) + 4px);
+  transform: none; width: min(420px, calc(100vw - 32px)); }
+body.plano.modo-tablet #subtitulo { display: none !important; }
+body.plano #planilla { right: calc(var(--ancho-cajon) + 40px); width: min(560px, calc(100vw - var(--ancho-cajon) - 80px)); }
+body.plano #recorrido { left: 12px; top: var(--abajo-franja); bottom: 76px; }
+body.plano #alerta { top: calc(var(--abajo-franja) + 4px); }
+body.plano #subtitulo { left: calc((100vw - var(--ancho-cajon)) / 2); }
+
+#ayuda-teclas { position: absolute; left: calc((100vw - var(--ancho-cajon)) / 2); bottom: 72px; transform: translateX(-50%); font-size: 12.5px; color: var(--t-2);
+  background: var(--panel-solido); border: 1px solid var(--borde); border-radius: var(--radius); padding: 8px 14px; white-space: nowrap; }
+#ayuda-teclas kbd { font: 700 11px var(--font); padding: 1px 6px; border: 1px solid var(--borde-fuerte); border-radius: 2px; margin: 0 2px; }
+
+/* ------------------------------------------------------------------ pantallas medianas y chicas */
+
+/* El aviso de "bajó a ×1" puede ser largo: una línea con puntos suspensivos. */
+#franja #aviso-lento { max-width: 420px; }
+#franja #aviso-lento span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Hasta 1400 px la franja se compacta para seguir entrando en una fila. */
+@media (max-width: 1400px) {
+  #cajon { width: 320px; }
+  #franja { gap: 8px 14px; padding: 8px 12px; }
+  #franja .f-marca span { display: none; }
+  #franja #hora { font-size: 26px; }
+  #franja #tiempo { grid-template-columns: 180px auto; }
+  #franja #tiempo .siguiente { padding: 6px 8px; font-size: 10.5px; }
+  #franja #aviso-lento { max-width: 330px; }
+}
+/* Hasta 1100 px el cajón no entra fijo: se abre encima con el botón "Panel". */
+@media (max-width: 1100px) {
+  #cajon { display: none; z-index: 6; width: min(360px, calc(100vw - 24px)); bottom: 76px; }
+  body.cajon-abierto #cajon { display: flex; }
+  #cajon .pestanas .cerrar-cajon { display: inline-flex; }
+  #btn-cajon { display: inline-flex !important; }
+  #franja .f-marca span { display: none; }
+}
+@media (max-width: 600px) {
+  #franja { left: 8px; right: 8px; top: 8px; padding: 8px 10px; gap: 6px 14px; }
+  #franja .f-marca img, #franja #proximo, #franja #tiempo .auto { display: none; }
+  #franja #tiempo { grid-template-columns: minmax(0, 1fr) auto; width: 100%; }
+  #franja #tiempo .velocidades { min-width: 0; }
+  #franja #num-vel { width: 46px; }
+  #franja #tiempo .siguiente { padding: 6px 8px; font-size: 10px; }
+  #franja #hora { font-size: 22px; }
+  #franja #consumo-tokens { width: 100%; padding: 8px 0 0; border-left: 0; border-top: 1px solid var(--borde);
+    align-items: stretch; flex-direction: column; gap: 6px; }
+  .consumo-resumen { justify-content: space-between; }
+  .consumo-metrica b { font-size: 22px; }
+  .consumo-desglose table { width: 100%; }
+  body.plano #camaras { left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); justify-content: flex-start; }
+  #ayuda-teclas { display: none !important; }
+}

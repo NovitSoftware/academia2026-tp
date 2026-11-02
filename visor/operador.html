@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#070A12" />
+  <title>Operador · PIA-3 · Academia Novit</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="/marca/favicon-64.png" />
+  <link rel="apple-touch-icon" href="/marca/favicon-180.png" />
+</head>
+<body>
+  <header class="barra">
+    <img src="/marca/logo-novit-white.png" alt="Novit" class="logo" />
+    <div class="titulo"><b>Operador</b><span>PIA-3 · notas de voz</span></div>
+    <a href="/" class="ver-planta">Ver la planta</a>
+  </header>
+
+  <nav class="pestanas" role="tablist">
+    <button role="tab" data-modo="vivo" class="activa">En vivo</button>
+    <button role="tab" data-modo="leer">Leer notas de escenario</button>
+  </nav>
+
+  <div id="aviso-https" class="aviso oculto">
+    <b>El micrófono necesita HTTPS.</b>
+    <span>Abrí esta página con <code id="url-https"></code>. Mientras tanto podés subir un audio grabado con el celular.</span>
+  </div>
+
+  <label class="campo nombre">
+    <span id="rotulo-nombre">Quién graba</span>
+    <input id="nombre" autocomplete="name" placeholder="Tu nombre" maxlength="60" />
+  </label>
+
+  <!-- ------------------------------------------------------------ en vivo -->
+  <main id="vivo">
+    <p class="ayuda">Dictá una nota como si estuvieras en la recorrida. Llega al sistema del cursante por
+      <code>planta/recorridas</code> y se ve en el visor, sin parte esperado.</p>
+
+    <div class="grabador" id="grabador-vivo"></div>
+
+    <div class="fotos">
+      <div class="sub">Fotos</div>
+      <div class="miniaturas" id="miniaturas"></div>
+      <div class="botones">
+        <label class="boton">Sacar foto<input type="file" accept="image/*" capture="environment" id="foto-camara" hidden /></label>
+        <label class="boton">Subir fotos<input type="file" accept="image/*" multiple id="foto-galeria" hidden /></label>
+      </div>
+    </div>
+
+    <button class="primario grande" id="enviar-vivo" disabled>Enviar la nota a la planta</button>
+    <div class="estado" id="estado-vivo" role="status"></div>
+    <ul class="enviadas" id="enviadas"></ul>
+  </main>
+
+  <!-- ------------------------------------------------------------ leer notas -->
+  <main id="leer" class="oculto">
+    <p class="ayuda">Cada escenario tiene sus notas, siempre las mismas. Leé cada una en voz alta, como la
+      diría un operador: tu voz reemplaza a la sintética cuando se corre el escenario.</p>
+    <label class="campo">
+      <span>Escenario</span>
+      <select id="escenario"></select>
+    </label>
+    <div class="estado" id="estado-guion" role="status"></div>
+    <div class="progreso oculto" id="progreso"><i></i><span></span></div>
+    <ol class="notas" id="notas"></ol>
+  </main>
+
+  <div id="lectura" class="hoja oculto" role="dialog" aria-modal="true" aria-labelledby="lectura-id">
+    <div class="hoja-cuerpo">
+      <div class="hoja-cabeza">
+        <button class="volver" id="cerrar-lectura" aria-label="Volver a la lista">‹ Notas</button>
+        <span id="lectura-id"></span>
+      </div>
+      <div class="quien" id="lectura-quien"></div>
+      <p class="texto-nota" id="lectura-texto"></p>
+      <div class="consejo">Leela tal cual está escrita, sin apuro, como hablás en la recorrida. La verdad de campo es este texto: si te equivocás en un número, grabala de nuevo.</div>
+      <div class="previa oculto" id="lectura-previa"><span>Grabación guardada</span><audio controls preload="none"></audio></div>
+      <div class="grabador" id="grabador-leer"></div>
+      <div class="acciones">
+        <button id="guardar-lectura" class="primario grande" disabled>Guardar y pasar a la siguiente</button>
+      </div>
+      <div class="estado" id="estado-lectura" role="status"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/operador.js"></script>
+</body>
+</html>

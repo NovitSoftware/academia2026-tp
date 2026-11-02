@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PIA-3 · Plano 2D · Academia Novit</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="/marca/favicon-64.png" />
+  <link rel="apple-touch-icon" href="/marca/favicon-180.png" />
+</head>
+<body class="plano">
+  <div id="escena"><canvas id="lienzo"></canvas><div id="etiquetas"></div></div>
+  <div id="vineta"></div>
+
+  <div id="carga">
+    <img class="logo" src="/marca/logo-novit-white.png" alt="Novit" />
+    <div class="volanta">Academia Novit 2026 · Trabajo práctico</div>
+    <h2>Planta de inyección PIA-3</h2>
+    <p>Recuperación secundaria en un yacimiento maduro del Golfo San Jorge. Dibujamos el plano de la planta y sus bombas.</p>
+    <div class="barra-carga"><i></i></div>
+    <div class="estado-carga" id="estado-carga">Conectando con la planta</div>
+  </div>
+
+  <div id="hud">
+    <header id="franja" class="panel">
+      <div class="f-marca">
+        <img src="/marca/logo-novit-white.png" alt="Novit" />
+        <div><h1>PIA-3</h1><span>Planta de inyección · Cerro Dragón Sur</span></div>
+      </div>
+      <div class="f-reloj">
+        <div id="reloj"><span id="hora">--:--</span><span id="fecha">—</span></div>
+        <div class="chips">
+          <span class="chip" id="chip-escenario">escenario</span>
+          <span class="chip" id="chip-velocidad">×1</span>
+          <span class="chip" id="chip-conexion">conectando</span>
+        </div>
+      </div>
+      <div id="tiempo">
+          <div class="velocidades" role="group" aria-label="Velocidad de la planta">
+            <button id="btn-pausa" title="Pausa" aria-label="Pausa"><svg class="icono" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg></button>
+            <input id="rng-vel" type="range" min="-0.301" max="3.5563" step="0.001" aria-label="Velocidad (escala logarítmica)" />
+            <label class="multiplicador">×<input id="num-vel" type="number" min="0.5" max="3600" step="any" inputmode="decimal" aria-label="Multiplicador" /></label>
+          </div>
+          <button id="btn-siguiente" class="siguiente" title="Correr la planta hasta lo próximo que pasa">
+            <svg class="icono" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4" /><line x1="19" x2="19" y1="5" y2="19" /></svg>Próximo evento
+          </button>
+          <div id="proximo"></div>
+          <label class="auto"><input type="checkbox" id="chk-auto" checked /> Bajar a ×1 un rato cuando pasa algo</label>
+          <div id="aviso-lento" class="oculto"><span id="aviso-lento-texto"></span><button id="btn-reanudar">Seguir a ×360</button></div>
+      </div>
+      <section id="consumo-tokens" aria-label="Consumo acumulado de tokens del sistema">
+        <div class="consumo-resumen">
+          <div class="consumo-metrica" title="Entrada + salida de todo el historial guardado por el sistema">
+            <span class="consumo-rotulo">Tokens totales</span>
+            <b id="tokens-total">—</b>
+            <span id="tokens-estado" class="consumo-nota">Esperando métricas</span>
+          </div>
+          <div class="consumo-metrica" id="tokens-velocidad-info">
+            <span class="consumo-rotulo">Promedio salida</span>
+            <div><b id="tokens-velocidad">—</b><small>tok/s</small></div>
+            <span id="tokens-metodo" class="consumo-nota">Tiempo real</span>
+          </div>
+        </div>
+        <div class="consumo-desglose">
+          <table aria-label="Tokens de entrada y salida por modelo">
+            <thead><tr><th scope="col">Modelo</th><th scope="col">Entrada</th><th scope="col">Salida</th><th scope="col">tok/s</th></tr></thead>
+            <tbody id="tokens-modelos"><tr><td colspan="4" class="consumo-vacio">Sin datos de consumo</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </header>
+    <aside id="cajon" class="panel" aria-label="Panel de datos">
+      <div class="pestanas" role="tablist">
+        <button data-pestana="actividad" class="activo" role="tab">Actividad</button>
+        <button data-pestana="inyeccion" role="tab">Inyección</button>
+        <button data-pestana="ficha" class="oculto" role="tab">Ficha</button>
+        <button data-pestana="leyenda" role="tab">Leyenda</button>
+        <button data-pestana="instructor" class="oculto" role="tab">Instructor</button>
+        <button class="cerrar-cajon" aria-label="Cerrar el panel"><svg class="icono" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
+      </div>
+      <div class="contenidos">
+        <section id="inyeccion" data-panel="inyeccion" class="inactivo" aria-label="Inyección al reservorio">
+          <div class="volanta">Inyección al reservorio</div>
+          <div class="kpi-valor"><span id="q-iny">—</span><small>m³/d</small></div>
+          <div class="barra"><div id="barra-iny"></div><div class="meta"></div></div>
+          <div class="kpi-pie"><span>Programada <b id="q-prog">2.400</b></span><span id="q-delta"></span></div>
+          <canvas id="spark-iny" width="300" height="96"></canvas>
+          <div class="estados">
+            <div class="estado" id="st-enlace"><i></i><span>Enlace</span><b>—</b></div>
+            <div class="estado" id="st-energia"><i></i><span>Energía</span><b>—</b></div>
+            <div class="estado" id="st-viento"><i></i><span>Viento</span><b>—</b></div>
+            <div class="estado" id="st-temp"><i></i><span>Temperatura</span><b>—</b></div>
+          </div>
+        </section>
+        <div data-panel="actividad" class="actividad">
+    <section id="sistema">
+      <div class="volanta">Sistema del cursante <span id="latido" class="pill">sin conexión</span></div>
+      <div class="sub-titulo">Eventos</div>
+      <ul id="lista-eventos" class="lista"><li class="vacio">Esperando eventos en sistema/eventos</li></ul>
+      <div class="sub-titulo">Órdenes de trabajo</div>
+      <ul id="lista-ordenes" class="lista"><li class="vacio">Esperando órdenes en sistema/ordenes</li></ul>
+      <div id="invalidos"></div>
+    </section>
+    <section id="bitacora">
+      <div class="volanta">Bitácora de planta</div>
+      <ul id="lista-bitacora" class="lista"></ul>
+    </section>
+        </div>
+    <aside id="ficha" data-panel="ficha" class="oculto">
+      <button class="cerrar" aria-label="Cerrar"><svg class="icono" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
+      <div class="volanta">Ficha de equipo</div>
+      <div class="tag" id="ficha-tag"></div>
+      <div class="desc" id="ficha-desc"></div>
+      <div class="alias" id="ficha-alias"></div>
+      <div id="ficha-valores"></div>
+    </aside>
+    <aside id="leyenda" data-panel="leyenda" class="inactivo" aria-label="Leyenda del plano">
+            <div class="grupo-leyenda">
+        <div class="sub-titulo">Estado de los equipos</div>
+        <ul>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#29d07a" stroke-width="2.5" /></svg>En servicio, normal</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#ffb020" stroke-width="2.5" /></svg>Aviso: fuera de lo habitual</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#ff3b30" stroke-width="2.5" /></svg>Alarma o disparo (titila)</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#7f8c97" stroke-width="2.5" /></svg>Parada o en reserva</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#4aa3ff" stroke-width="2.5" /></svg>Mantenimiento o cambio de cartuchos</li>
+        </ul>
+      </div>
+      <div class="grupo-leyenda">
+        <div class="sub-titulo">De dónde sale cada dato</div>
+        <ul>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#3DB0E4" /><text x="10" y="13.5" font-size="9" font-weight="900" text-anchor="middle" fill="#06101c">S</text></svg>Sensor conectado: llega solo por planta/sensores</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="#1a1406" stroke="#E8A93A" stroke-width="1.5" /><text x="10" y="13.5" font-size="9" font-weight="900" text-anchor="middle" fill="#F0C987">R</text></svg>Recorrida: solo si el operador lo mira y lo dicta o lo anota</li>
+          <li><svg viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="10" rx="1" fill="#1a1406" stroke="#E8A93A" /><text x="10" y="13" font-size="7" font-weight="700" text-anchor="middle" fill="#F0C987">F01</text></svg>Código de la falla que se nota en esa pieza</li>
+        </ul>
+      </div>
+      <div class="grupo-leyenda">
+        <div class="sub-titulo">Cañerías</div>
+        <ul>
+          <li><svg viewBox="0 0 20 20"><line x1="1" y1="10" x2="19" y2="10" stroke="#2c5f78" stroke-width="5" /><line x1="1" y1="10" x2="19" y2="10" stroke="#3DB0E4" stroke-width="2.5" stroke-dasharray="4 5" /></svg>Succión, baja presión</li>
+          <li><svg viewBox="0 0 20 20"><line x1="1" y1="10" x2="19" y2="10" stroke="#5b4a86" stroke-width="5" /><line x1="1" y1="10" x2="19" y2="10" stroke="#B794F6" stroke-width="2.5" stroke-dasharray="4 5" /></svg>Descarga, alta presión</li>
+          <li><svg viewBox="0 0 20 20"><path d="M3 10h11m-4-4 4 4-4 4" fill="none" stroke="#cfe9f7" stroke-width="1.6" /></svg>Las rayas avanzan con el agua: más rápido, más caudal</li>
+          <li><svg viewBox="0 0 20 20"><path d="M4 5l12 10V5L4 15z" fill="#c0392b" /></svg>Válvula de bloqueo</li>
+        </ul>
+      </div>
+      <div class="grupo-leyenda">
+        <div class="sub-titulo">Personas y vehículos</div>
+        <ul>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="rgba(61,176,228,.3)" /><ellipse cx="10" cy="10" rx="6" ry="4" fill="#2a4f8f" /><circle cx="10" cy="10" r="3.5" fill="#f4f4f0" /></svg>Operador de la recorrida (casco blanco)</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="rgba(255,122,0,.3)" /><ellipse cx="10" cy="10" rx="6" ry="4" fill="#5a5f66" /><circle cx="10" cy="10" r="3.5" fill="#ff7a00" /></svg>Técnico de la cuadrilla (casco naranja)</li>
+          <li><svg viewBox="0 0 20 20"><rect x="2" y="6" width="16" height="8" rx="2" fill="#eef0f2" /><rect x="11" y="6.5" width="2" height="7" fill="#ffb020" /></svg>Camioneta; la de la cuadrilla lleva baliza</li>
+          <li><svg viewBox="0 0 20 20"><line x1="1" y1="10" x2="19" y2="10" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-dasharray="2 3" /><circle cx="10" cy="10" r="5" fill="#0b111c" stroke="#3DB0E4" stroke-width="1.5" /><text x="10" y="13" font-size="7" font-weight="900" text-anchor="middle" fill="#cfe9f7">1</text></svg>Ruta de la recorrida y sus paradas</li>
+        </ul>
+      </div>
+      <div class="grupo-leyenda">
+        <div class="sub-titulo">Instalaciones</div>
+        <ul>
+          <li><svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" fill="#2a3340" stroke="rgba(200,210,220,.5)" stroke-dasharray="2 1.5" /></svg>Galpón: piso de hormigón y techo punteado</li>
+          <li><svg viewBox="0 0 20 20"><line x1="1" y1="10" x2="19" y2="10" stroke="rgba(160,170,180,.8)" stroke-width="1.5" stroke-dasharray="3 2" /></svg>Cerco perimetral con portón</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3" fill="#00ff66" /><circle cx="10" cy="10" r="7" fill="rgba(0,255,102,.2)" /></svg>Enlace satelital: verde arriba, rojo caído</li>
+          <li><svg viewBox="0 0 20 20"><path d="M3 7l14 1.5v3L3 13z" fill="#ff5a00" /><path d="M8 7.5l3 .4v4.2l-3 .4z" fill="#fff" /></svg>Manga: hacia dónde sopla el viento</li>
+          <li><svg viewBox="0 0 20 20"><path d="M4 10 18 4v12z" fill="rgba(255,230,190,.45)" /><circle cx="4" cy="10" r="2.5" fill="#fff1d0" /></svg>Torre de luz (prende de noche)</li>
+          <li><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="#f2f2ee" stroke="#222" stroke-width="1.5" /><line x1="10" y1="10" x2="14" y2="7" stroke="#c0392b" stroke-width="1.5" /></svg>Manómetro local</li>
+        </ul>
+      </div>
+      <div class="pie-leyenda">Cuadrícula cada 5 m · norte arriba · x al este</div>
+    </aside>
+    <aside id="instructor" data-panel="instructor" class="oculto inactivo">
+      <div class="volanta">Panel de instructor · Novit</div>
+      <label>Escenario <select id="sel-escenario"></select></label>
+      <label>Velocidad <input id="rng-velocidad" type="range" min="0" max="6" step="1" /><b id="txt-velocidad"></b></label>
+      <div class="grilla">
+        <button data-a="recorrida">Recorrida</button>
+        <button data-a="pausa">Pausa</button>
+        <button data-a="enlace-caido">Cortar enlace</button>
+        <button data-a="enlace-arriba">Volver enlace</button>
+        <button data-a="energia-cortada">Cortar luz</button>
+        <button data-a="energia-normal">Volver luz</button>
+      </div>
+      <div class="sub-titulo">Provocar una falla</div>
+      <div class="grilla">
+        <select id="sel-falla">
+          <option value="F01">F01 Empaquetadura</option><option value="F02">F02 Válvulas</option>
+          <option value="F03">F03 Rodamiento</option><option value="F04">F04 Aceite bajo</option>
+          <option value="F05">F05 Correas</option><option value="F06">F06 Acople</option>
+          <option value="F07">F07 Cartuchos colmatados</option><option value="F08">F08 Cartucho roto</option>
+          <option value="S1">S1 Proyección de agua</option><option value="S2">S2 Olor a gas</option>
+          <option value="S3">S3 Humo en motor</option><option value="S4">S4 Persona lesionada</option>
+        </select>
+        <select id="sel-equipo">
+          <option>B-101</option><option>B-102</option><option>B-103</option><option>F-201A</option><option>F-201B</option>
+        </select>
+        <button id="btn-romper" class="peligro">Aplicar</button>
+        <button data-a="fin-seguridad">Fin de emergencia</button>
+      </div>
+      <div class="sub-titulo">Fallas activas · verdad de campo</div>
+      <ul id="lista-fallas" class="lista"></ul>
+    </aside>
+      </div>
+    </aside>
+
+
+
+
+    <div id="subtitulo" class="oculto">
+      <div class="quien"><span class="onda"><i></i><i></i><i></i><i></i><i></i></span><b id="sub-quien">Operador · nota de voz</b><span id="sub-hora"></span></div>
+      <p id="sub-texto"></p>
+    </div>
+
+    <aside id="tablet" class="oculto" aria-live="polite" aria-label="Tablet del operador">
+      <div class="marco">
+        <div class="camara-frontal"></div>
+        <div class="pantalla">
+          <div class="barra-estado"><span id="tablet-sistema">Sistema del cursante</span><span id="tablet-hora"></span></div>
+          <div id="tablet-pantalla"></div>
+          <div id="tablet-respuesta"></div>
+          <div class="sin-sonido">Activá el sonido para escuchar la conversación</div>
+        </div>
+      </div>
+      <div class="rotulo-tablet">Tablet del operador · lo que muestra el sistema del cursante</div>
+    </aside>
+
+    <div id="ayuda-teclas" class="oculto">Arrastrá para mover el plano · <kbd>rueda</kbd> acerca y aleja · clic en un equipo para ver su ficha · <kbd>J</kbd> operador · <kbd>G</kbd> planta · <kbd>P</kbd> proceso · <kbd>I</kbd> información</div>
+    <div id="alerta" class="oculto"><b>ALERTA DE SEGURIDAD</b><span id="alerta-texto"></span></div>
+    <div id="sin-energia" class="oculto">SIN ENERGÍA · PLANTA DETENIDA</div>
+
+    <nav id="camaras" class="panel">
+      <button data-vista="ambas" class="activo" title="Planta y vista lateral de las bombas">Planta + bombas</button>
+      <button data-vista="planta" title="Vista superior de toda la planta (G)">Planta</button>
+      <button data-vista="bombas" title="Vista lateral de las bombas">Bombas</button>
+      <button data-vista="seguir" title="Seguir al operador en su recorrida (J)">Operador</button>
+      <button data-vista="proceso" title="Diagrama de proceso: el camino del agua (P)">Proceso</button>
+      <button data-vista="info" title="Flujo de la información y línea de tiempo (I)">Información</button>
+      <span class="sep"></span>
+      <button id="btn-cajon" title="Abrir el panel de datos">Panel</button>
+      <button id="btn-recorrido" title="Recorrido guiado por la planta">Recorrido guiado</button>
+      <button id="btn-planilla" title="Planilla de papel del turno">Planilla</button>
+      <span class="sep"></span>
+      <a href="/operador" id="btn-operador" title="Grabar una nota de voz como el operador, desde el celular">Grabar nota</a>
+      <button id="btn-sonido" title="Sonido de planta y notas de voz" aria-label="Sonido">
+        <svg class="icono" viewBox="0 0 24 24" id="ico-sin-sonido"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z" /><line x1="22" x2="16" y1="9" y2="15" /><line x1="16" x2="22" y1="9" y2="15" /></svg>
+        <svg class="icono oculto" viewBox="0 0 24 24" id="ico-sonido"><path d="M11 4.7a.7.7 0 0 0-1.2-.5L6.4 7.6A1.4 1.4 0 0 1 5.4 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.4a1.4 1.4 0 0 1 1 .4l3.4 3.4a.7.7 0 0 0 1.2-.5z" /><path d="M16 9a5 5 0 0 1 0 6" /><path d="M19.4 18.4a9 9 0 0 0 0-12.8" /></svg>
+      </button>
+    </nav>
+
+
+
+    <div id="oferta-recorrido" class="panel oculto" role="dialog" aria-labelledby="oferta-titulo">
+      <div class="volanta">Primera vez en la planta</div>
+      <h2 id="oferta-titulo">¿Hacemos el recorrido guiado?</h2>
+      <p>Repasamos la planta pieza por pieza: para qué está cada equipo, por qué se llama así, cómo se trabaja hoy y qué protecciones de seguridad tiene, antes de que construyan nada. Son unos cinco minutos.</p>
+      <div class="acciones">
+        <button data-r="si" class="primario">Empezar el recorrido</button>
+        <button data-r="no">Ahora no</button>
+      </div>
+      <div class="nota-pie">Lo podés repetir cuando quieras desde el botón "Recorrido guiado".</div>
+    </div>
+
+    <aside id="recorrido" class="panel oculto">
+      <div class="volanta"><span class="paso">Paso 1</span><button data-r="salir" class="cerrar-recorrido" aria-label="Salir del recorrido"><svg class="icono" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button></div>
+      <div class="barra-paso"><i></i></div>
+      <h2></h2>
+      <div class="cuerpo-paso"></div>
+      <div class="acciones">
+        <button data-r="ant">Anterior</button>
+        <button data-r="sig" class="primario"><span class="rotulo">Siguiente</span><img src="/marca/flecha.svg" alt="" class="flecha" /></button>
+      </div>
+    </aside>
+
+    <aside id="planilla" class="oculto" aria-label="Planilla de recorrida del turno">
+      <button class="cerrar-planilla" aria-label="Cerrar planilla"><svg class="icono" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
+      <div class="hoja">
+        <div class="encabezado-hoja">
+          <div><b>PLANILLA DE RECORRIDA</b><span>Planta de inyección PIA-3 · Yac. Cerro Dragón Sur</span></div>
+          <div class="campos"><span>Turno: <i id="pl-turno"></i></span><span>Operador: <i id="pl-operador"></i></span></div>
+        </div>
+        <table>
+          <thead><tr><th>Hora</th><th>Equipo</th><th>Variable</th><th>Valor</th><th>Unid.</th><th>Observaciones</th></tr></thead>
+          <tbody id="pl-filas"></tbody>
+        </table>
+        <div class="pie-hoja"><span id="pl-estado"></span><span>Firma: <i id="pl-firma"></i></span></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script type="module" src="/src/plano/main.js"></script>
+</body>
+</html>

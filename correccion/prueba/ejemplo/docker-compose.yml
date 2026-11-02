@@ -1,0 +1,18 @@
+# Un "cursante" de prueba para el corrector: el sistema de ejemplo de la planta, que hace trampa leyendo la verdad
+# de campo con la clave de corrección. Sirve para ver que el corrector corre de punta a punta, no para medir nada.
+#   python correccion/corregir.py --repo correccion/prueba/ejemplo --clave prueba --escenarios fuga-sin-enlace
+services:
+  ejemplo:
+    image: planta-sim
+    command: ["python", "-m", "planta_sim.ejemplo_sistema"]
+    networks: [planta-lan]
+    labels:
+      academia.planta: pc
+    environment:
+      MQTT_HOST: broker
+      SIM_URL: http://sim:8100
+      PLANTA_CORRECCION: prueba
+
+networks:
+  planta-lan:
+    external: true

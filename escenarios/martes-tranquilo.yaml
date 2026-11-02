@@ -1,0 +1,7 @@
+nombre: martes-tranquilo
+descripcion: Un día sin fallas. Todo tendría que terminar en Sin novedad; mide los falsos positivos.
+semilla: 101
+velocidad: 360   # 10 s reales = 1 hora de planta
+inicio: "2026-11-03T06:30:00-03:00"
+duracion: 24h
+eventos: []

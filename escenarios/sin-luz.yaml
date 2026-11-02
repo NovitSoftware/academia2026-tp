@@ -1,0 +1,12 @@
+nombre: sin-luz
+descripcion: >
+  Los cartuchos del filtro B se tapan y no alcanza el stock del yacimiento, así que la orden queda
+  pendiente. Mientras espera, se corta la luz: la PC de planta se apaga de golpe y la orden pendiente
+  tiene que sobrevivir al reinicio.
+semilla: 404
+velocidad: 360   # 10 s reales = 1 hora de planta
+inicio: "2026-11-06T06:30:00-03:00"
+duracion: 24h
+eventos:
+  - {en: 0m, accion: falla, codigo: F07, equipo: F-201B, severidad: 0.3, tasa_h: 0.05}
+  - {en: 9h, accion: energia, estado: cortada, duracion: 25m}

@@ -1,0 +1,431 @@
+<title>Guía de la planta PIA-3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: manual de referencia de una sola columna ancha; diagramas de flujo arriba, glosario consultable abajo. */
+:root {
+  --bg: #F3F6F8;
+  --surface: #FFFFFF;
+  --card: #E4E9ED;
+  --fg: #333333;
+  --muted: #6B7682;
+  --line: #CBD3DA;
+  --head: #0A0089;
+  --accent: #3398DC;
+  --voz: #510371;
+  --si: #1F8A5B;
+  --no: #B3261E;
+  --node-proc: #FFFFFF;
+  --node-proc-line: #9FB0BF;
+  --node-dec: #EAF4FB;
+  --node-dec-line: #3398DC;
+  --node-term: #E4E9ED;
+  --node-cur: #F3ECF7;
+  --node-cur-line: #85067B;
+  --font: "Lato", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0F17; --surface: #121826; --card: #182033; --fg: #DCE3EA; --muted: #8C97A5; --line: #2A3448;
+    --head: #9DB4FF; --accent: #3DB0E4; --voz: #D9A6E6; --si: #4CC38A; --no: #F0776E;
+    --node-proc: #151C2B; --node-proc-line: #3A4760; --node-dec: #12263A; --node-dec-line: #3DB0E4;
+    --node-term: #1C2436; --node-cur: #231A30; --node-cur-line: #C77BD6; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0F17; --surface: #121826; --card: #182033; --fg: #DCE3EA; --muted: #8C97A5; --line: #2A3448;
+  --head: #9DB4FF; --accent: #3DB0E4; --voz: #D9A6E6; --si: #4CC38A; --no: #F0776E;
+  --node-proc: #151C2B; --node-proc-line: #3A4760; --node-dec: #12263A; --node-dec-line: #3DB0E4;
+  --node-term: #1C2436; --node-cur: #231A30; --node-cur-line: #C77BD6; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.6; padding-inline: 20px; padding-block: 0 64px; }
+.envoltura { max-width: 1040px; margin: 0 auto; }
+header.portada { padding-block: 48px 28px; border-bottom: 1px solid var(--line); }
+.volanta { font-weight: 700; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 10px 0 0; font-weight: 900; font-size: clamp(32px, 5vw, 46px); line-height: 1.08; letter-spacing: -.01em; color: var(--head); text-wrap: balance; }
+.bajada { margin: 14px 0 0; font-size: 19px; font-weight: 300; max-width: 64ch; }
+h2 { margin: 0; font-weight: 900; font-size: 26px; line-height: 1.2; color: var(--head); text-wrap: balance; }
+h3 { margin: 0; font-weight: 700; font-size: 17px; }
+p { margin: 0; }
+section.bloque { padding-block: 40px 8px; display: grid; gap: 16px; }
+.texto { max-width: 68ch; display: grid; gap: 10px; }
+code, .tag { font-family: var(--mono); font-size: .88em; }
+.texto a { color: var(--accent); text-underline-offset: 3px; }
+nav.indice { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+nav.indice a { color: var(--fg); text-decoration: none; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
+nav.indice a:hover, nav.indice a:focus-visible { border-color: var(--accent); outline: none; }
+
+.actores { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.actor { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent); padding: 16px 18px; display: grid; gap: 6px; min-width: 0; }
+.actor.cursante { border-top-color: var(--node-cur-line); }
+.actor.novit { border-top-color: var(--muted); }
+.actor p { font-size: 15px; color: var(--fg); }
+
+.leyenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.leyenda i { width: 18px; height: 12px; border: 1.5px solid; display: inline-block; }
+.leyenda .l-proc { background: var(--node-proc); border-color: var(--node-proc-line); }
+.leyenda .l-dec { background: var(--node-dec); border-color: var(--node-dec-line); transform: rotate(45deg) scale(.7); }
+.leyenda .l-term { background: var(--node-term); border-color: var(--node-proc-line); border-radius: 8px; }
+.leyenda .l-cur { background: var(--node-cur); border-color: var(--node-cur-line); }
+
+.diagrama { background: var(--surface); border: 1px solid var(--line); overflow-x: auto; padding: 8px; }
+.diagrama svg { display: block; min-width: 720px; width: 100%; height: auto; }
+.diagrama svg text { font-family: var(--font); fill: var(--fg); }
+.diagrama .n rect, .diagrama .n polygon { stroke-width: 1.5; }
+.diagrama .n.proc rect { fill: var(--node-proc); stroke: var(--node-proc-line); }
+.diagrama .n.term rect { fill: var(--node-term); stroke: var(--node-proc-line); }
+.diagrama .n.dec polygon { fill: var(--node-dec); stroke: var(--node-dec-line); }
+.diagrama .n.cur rect { fill: var(--node-cur); stroke: var(--node-cur-line); }
+.diagrama .n .t1 { font-weight: 700; font-size: 13.5px; }
+.diagrama .n .t2 { font-size: 12px; fill: var(--muted); }
+.diagrama a .n { cursor: pointer; }
+.diagrama a:hover .n rect, .diagrama a:hover .n polygon, .diagrama a:focus .n rect, .diagrama a:focus .n polygon { stroke: var(--accent); stroke-width: 2.5; }
+.diagrama .flecha { fill: none; stroke: var(--muted); stroke-width: 1.4; }
+.diagrama .rot { font-size: 12px; font-weight: 700; }
+.diagrama .rot.si { fill: var(--si); } .diagrama .rot.no { fill: var(--no); }
+.diagrama .rot.n2 { fill: var(--muted); font-weight: 400; font-style: italic; }
+.pista { font-size: 13px; color: var(--muted); }
+
+.buscador { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.buscador input { flex: 1 1 280px; min-width: 0; font: 16px var(--font); padding: 10px 12px; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--fg); }
+.buscador input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; }
+.filtros button { font: 700 12px var(--font); letter-spacing: .06em; text-transform: uppercase; padding: 8px 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 2px; cursor: pointer; }
+.filtros button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.filtros button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.contador { font-size: 13px; color: var(--muted); }
+
+.grupo-gl { display: grid; gap: 10px; }
+.grupo-gl > h3 { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); padding-top: 18px; }
+.fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.ficha { background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; scroll-margin-top: 20px; }
+.ficha:target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.ficha header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ficha h4 { margin: 0; font-size: 17px; font-weight: 900; color: var(--head); }
+.ficha .lado { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.ficha.cursante .lado { color: var(--voz); }
+.ficha dl { margin: 0; display: grid; gap: 8px; }
+.ficha dt { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.ficha dd { margin: 0; font-size: 14.5px; line-height: 1.55; }
+.ficha .codigo { font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; overflow-wrap: anywhere; }
+.vacio { color: var(--muted); font-style: italic; }
+footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="envoltura">
+  <header class="portada">
+    <div class="volanta">Academia Novit 2026 · Trabajo práctico</div>
+    <h1>Guía de la planta PIA-3</h1>
+    <p class="bajada">Cómo se mueven los eventos por la planta simulada, quién hace cada cosa y qué significa cada pieza. Cada caja de los diagramas lleva a su ficha del glosario.</p>
+    <nav class="indice" aria-label="Contenido">
+      <a href="#actores">Quién participa</a>
+      <a href="#reloj">El reloj</a>
+      <a href="#flujo-falla">1 · De la falla al aviso</a>
+      <a href="#flujo-cursante">2 · Lo que decide el sistema del cursante</a>
+      <a href="#flujo-orden">3 · De la orden al cierre</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </header>
+
+  <section class="bloque" id="actores">
+    <h2>Quién participa</h2>
+    <div class="actores">
+      <div class="actor"><h3>La planta simulada</h3><p>El simulador de Novit. Hace correr la planta, rompe cosas, dicta las notas del operador, ejecuta las órdenes que le aprueban y lo publica todo por MQTT. Es la misma para todos los cursantes.</p></div>
+      <div class="actor cursante"><h3>El sistema del cursante</h3><p>Lo que construye cada cursante. Escucha lo que publica la planta, arma partes, detecta anomalías, propone órdenes y decide cuáles se aprueban. Publica sus decisiones en los tópicos <code>sistema/…</code>.</p></div>
+      <div class="actor novit"><h3>Novit, como instructor</h3><p>Elige el escenario, cambia la velocidad y provoca fallas en vivo desde el panel de instructor. En la última clase corre los escenarios de corrección contra el TP de cada cursante.</p></div>
+    </div>
+  </section>
+
+  <section class="bloque" id="reloj">
+    <h2>El reloj: por qué todo sale igual dos veces</h2>
+    <div class="texto">
+      <p>La planta tiene su propio reloj, el <a href="#e-reloj">reloj simulado</a>, que puede ir a la misma velocidad que el real o mucho más rápido (×10, ×120). Nada toca la planta directamente: el escenario, el instructor, la agenda de recorridas y la cuadrilla dejan un evento anotado con su hora en la <a href="#e-cola">cola de eventos</a>.</p>
+      <p>El reloj avanza en pasos de hasta 10 segundos simulados. En cada paso, primero el <a href="#e-modelo">modelo físico</a> recalcula la planta y después se ejecutan, en orden, los eventos cuya hora ya llegó. Como todo azar sale de la <a href="#e-semilla">semilla</a> del escenario, la misma semilla da la misma planta: las mismas fallas, las mismas lecturas y las mismas notas de voz.</p>
+    </div>
+  </section>
+
+  <section class="bloque" id="flujo-falla">
+    <h2>1 · De la falla al aviso</h2>
+    <p class="texto">Qué pasa dentro de la planta desde que algo empieza a romperse hasta que alguien se entera. Todo esto lo hace el simulador; el sistema del cursante solo ve lo que sale por MQTT.</p>
+    <div class="leyenda" aria-hidden="true"><span><i class="l-term"></i>Inicio o fin</span><span><i class="l-proc"></i>Paso de la planta</span><span><i class="l-dec"></i>Decisión</span><span><i class="l-cur"></i>Lo hace el sistema del cursante</span></div>
+    <div class="diagrama" id="d1"></div>
+    <p class="pista">Tocá cualquier caja para ir a su ficha.</p>
+  </section>
+
+  <section class="bloque" id="flujo-cursante">
+    <h2>2 · Lo que decide el sistema del cursante</h2>
+    <p class="texto">Lo que pide el enunciado, en el orden en que pasa. Las cajas violetas las construye el cursante; la planta solo registra lo que publica y lo compara con la verdad de campo.</p>
+    <div class="diagrama" id="d2"></div>
+  </section>
+
+  <section class="bloque" id="flujo-orden">
+    <h2>3 · De la orden aprobada al cierre</h2>
+    <p class="texto">Cuando una orden pasa a <code>Aprobada</code>, la planta vuelve a actuar: sale la cuadrilla, el equipo se detiene si hace falta, se repara y llega la nota de cierre. El cierre y la certificación los resuelve otra vez el sistema del cursante.</p>
+    <div class="diagrama" id="d3"></div>
+  </section>
+
+  <section class="bloque" id="glosario">
+    <h2>Glosario</h2>
+    <div class="buscador">
+      <label for="buscar" class="volanta" style="flex-basis:100%">Buscar en el glosario</label>
+      <input id="buscar" type="search" placeholder="Por ejemplo: habilita, semilla, empaquetadura" autocomplete="off">
+      <div class="filtros" role="group" aria-label="Filtrar por lado">
+        <button type="button" data-f="todos" aria-pressed="true">Todo</button>
+        <button type="button" data-f="planta" aria-pressed="false">Planta</button>
+        <button type="button" data-f="cursante" aria-pressed="false">Cursante</button>
+        <button type="button" data-f="operadora" aria-pressed="false">Operadora</button>
+      </div>
+      <span class="contador" id="contador"></span>
+    </div>
+    <div id="glosario-cuerpo"></div>
+  </section>
+
+  <footer>Novit Software · Academia 2026 · La planta, el contrato y los escenarios están en el monorepo <code>NovitSoftware/academia2026-planta</code>.</footer>
+</div>
+
+<script>
+// ------------------------------------------------------------------ glosario
+// lado: planta (lo hace el simulador), cursante (lo construye el cursante), operadora (personas y documentos del negocio).
+const G = [
+  { g: 'Cómo corre la simulación', items: [
+    { id: 'escenario', n: 'Escenario', lado: 'planta', que: 'Un archivo YAML con una semilla, una velocidad, una hora de inicio y una lista de eventos con su hora: "a las 5 h se corta el enlace por 4 h".', hace: 'Arma el día de la planta. Cada escenario prueba algo del enunciado: un corte de luz con una orden pendiente, una contratista que declara de más, una nota de voz con instrucciones para el modelo.', porque: 'Para que la corrección sea justa: todos los cursantes reciben exactamente la misma planta.', nombre: 'Como en el teatro: el guion de lo que va a pasar.', cod: 'escenarios/*.yaml · planta_sim/escenarios.py' },
+    { id: 'semilla', n: 'Semilla', lado: 'planta', que: 'Un número entero del escenario del que sale todo el azar de la simulación.', hace: 'Decide qué dice el operador, cuánto ruido tienen los sensores, cuándo llega la cuadrilla y si la contratista declara de más.', porque: 'Con la misma semilla todo se repite igual. Sin ella, dos corridas del mismo escenario darían planillas y notas distintas.', nombre: 'Es el término de programación: la semilla del generador de números aleatorios.', cod: 'Escenario.semilla · random.Random(semilla)' },
+    { id: 'reloj', n: 'Reloj simulado', lado: 'planta', que: 'La hora de la planta, que no es la de tu máquina. Puede ir a ×1 o mucho más rápido.', hace: 'Avanza en pasos de hasta 10 segundos simulados. Cada mensaje que publica la planta trae esa hora en su campo ts.', porque: 'Para probar en minutos un día entero de planta. Tu sistema tiene que usar la hora del mensaje, no la de su reloj.', nombre: '"Simulado" porque es la hora dentro de la simulación.', cod: 'Simulador.avanzar · Planta.ahora' },
+    { id: 'cola', n: 'Cola de eventos', lado: 'planta', que: 'La lista de todo lo que tiene que pasar, ordenada por hora: recorridas, fallas del escenario, cortes, llegada y salida de la cuadrilla, carga de planillas.', hace: 'En cada paso del reloj ejecuta, en orden, lo que ya venció.', porque: 'Es lo que garantiza el orden: nada se ejecuta antes de su hora ni dos veces.', nombre: 'Cola de prioridad, en programación: sale primero lo de hora más temprana.', cod: 'Simulador.programar · heapq' },
+    { id: 'modelo', n: 'Modelo físico', lado: 'planta', que: 'Las ecuaciones simplificadas de la planta: caudal de cada bomba, nivel del tanque, presiones, ensuciamiento de los filtros, temperatura del aceite y vibración.', hace: 'En cada paso recalcula todo a partir del estado anterior, de las fallas activas y de la hora del día.', porque: 'Para que las variables se muevan de forma creíble y cada falla deje una firma reconocible.', nombre: 'Modelo, en el sentido de ingeniería: una representación matemática de la planta.', cod: 'planta_sim/modelo.py' },
+    { id: 'falla', n: 'Falla', lado: 'planta', que: 'Algo que se rompe en un equipo: empaquetadura, válvulas, rodamiento, aceite, correas, acople, cartuchos o un sensor. Hay 10, con códigos F01 a F10.', hace: 'Cambia el modelo físico (baja el caudal, sube la vibración o la temperatura) y lo que el operador ve en la recorrida.', porque: 'Cada falla ejercita algo del enunciado: una tarea estándar que se aprueba sola, una que necesita contratista, una que deja la planta sin reserva.', nombre: 'Falla, en el vocabulario de mantenimiento: un modo en que un equipo deja de cumplir su función.', cod: 'docs/fallas.md · planta_sim/catalogo.py' },
+    { id: 'severidad', n: 'Severidad', lado: 'planta', que: 'Un número de 0 a 1 que dice cuán avanzada está una falla.', hace: 'Crece con el tiempo a la tasa del escenario. Con poca severidad la falla casi no se nota; cerca de 1 dispara protecciones.', porque: 'Una falla real empeora de a poco. Así el sistema del cursante puede detectarla temprano o tarde.', nombre: 'El término de análisis de fallas: qué tan grave es.', cod: 'Falla.severidad · Falla.tasa_h' },
+    { id: 'insegura', n: 'Condición insegura', lado: 'planta', que: 'Una situación de riesgo para las personas: proyección de agua a presión, olor a gas, humo en un motor o una persona lesionada. Códigos S1 a S4.', hace: 'El operador la dicta en el momento en una nota de voz. La S1 también baja la presión del colector.', porque: 'El enunciado pide que la alerta salga en el momento, sin enlace y sin modelos en la nube.', nombre: 'Así se llama en seguridad industrial a lo que puede lastimar a alguien.', cod: 'catalogo.SEGURIDAD · Simulador.aplicar("seguridad")' },
+    { id: 'proteccion', n: 'Protección', lado: 'planta', que: 'Las reglas del sistema de control que detienen una bomba: aceite por encima de 90 °C, vibración por encima de 11,2 mm/s o succión por debajo de 0,5 kg/cm², sostenidos 30 segundos.', hace: 'Dispara la bomba. Queda en estado disparo hasta que se repara o se rearma.', porque: 'Es la seguridad que ya existe hoy, antes del sistema del cursante.', nombre: 'Protección, en control industrial: lo que protege al equipo de romperse más.', cod: 'Planta._protecciones' },
+    { id: 'reserva', n: 'Bomba de reserva', lado: 'planta', que: 'La tercera bomba, parada y lista para arrancar. Por defecto es la B-103.', hace: 'Si una bomba en servicio se detiene, el control arranca la reserva en 90 segundos. Si la reserva no está disponible, la planta inyecta menos.', porque: 'De ella depende una regla de aprobación: una tarea que detiene una bomba se aprueba sola solo si la reserva la reemplaza.', nombre: 'Se dice "reserva" o "stand-by": está de respaldo.', cod: 'Planta._control_reserva' },
+    { id: 'energia', n: 'Corte de energía', lado: 'planta', que: 'La planta sin luz: todas las bombas paran y la PC de planta se apaga de golpe.', hace: 'Mata los contenedores del cursante que tienen la etiqueta academia.planta=pc y los vuelve a encender al volver la luz.', porque: 'Prueba que una orden pendiente sobreviva a un reinicio, como pide el enunciado.', nombre: 'Lo que en campo se llama "se cortó la luz".', cod: 'Simulador.set_energia · app._energia_pc' },
+  ]},
+  { g: 'Las personas virtuales', items: [
+    { id: 'operador', n: 'Operador virtual', lado: 'planta', que: 'El operador de planta que recorre la instalación dos veces por turno: a las 8, 14, 20 y 2 h.', hace: 'Lee los instrumentos locales, escucha ruidos, busca pérdidas, dicta notas de voz con nombres informales y anota la planilla de papel.', porque: 'Es la fuente de los partes por voz del enunciado. Como el simulador sabe lo que de verdad pasa, cada nota viene con su parte esperado.', nombre: 'Virtual porque lo genera el simulador; en la vida real es el operador de planta.', cod: 'planta_sim/operador.py' },
+    { id: 'cuadrilla', n: 'Cuadrilla virtual', lado: 'planta', que: 'El equipo de mantenimiento que ejecuta una orden aprobada, propio o de la contratista.', hace: 'Llega entre 45 y 180 minutos después, detiene el equipo si la tarea lo pide, repara durante las horas de la tarea y dicta la nota de cierre.', porque: 'Cierra el circuito: lo que decide el sistema del cursante cambia la planta de verdad.', nombre: 'Cuadrilla es el grupo de técnicos que sale a campo.', cod: 'Simulador._programar_trabajo · _terminar_trabajo' },
+    { id: 'contratista', n: 'Contratista virtual', lado: 'planta', que: 'Servipat, la empresa de mantenimiento hipotética que hace los trabajos que no hace el personal propio.', hace: 'En 6 de cada 10 cierres declara algo distinto de lo que hizo: más horas, un repuesto que no estaba en la orden o el doble de cantidad.', porque: 'Para que la certificación contra la orden y el contrato tenga diferencias reales que encontrar.', nombre: 'Contratista, como se le dice en la industria a la empresa que trabaja por contrato.', cod: 'Simulador._emitir_cierre' },
+  ]},
+  { g: 'Lo que produce la planta', items: [
+    { id: 'lectura', n: 'Lectura de sensor', lado: 'planta', que: 'Una medición de un sensor conectado: presiones de succión y descarga, temperatura del aceite, vibración, presión diferencial de filtros y caudal.', hace: 'Se publica en planta/sensores/{TAG}/{variable} con su valor, unidad, hora y calidad.', porque: 'Es la otra mitad de la detección: el parte dice lo que vio el operador y el sensor lo que midió el sistema de control.', nombre: 'Lectura, como se le dice a la medición de un instrumento.', cod: 'LecturaSensor · Simulador._publicar_sensores' },
+    { id: 'historiador', n: 'Historiador', lado: 'planta', que: 'La base que guarda una muestra por minuto de cada sensor, 45 días hacia atrás.', hace: 'Responde en /api/historian/{tag}/{variable}. Al arrancar ya tiene 21 días de historia simulada.', porque: 'El enunciado pide la tendencia de las últimas horas y el rango histórico de cada equipo.', nombre: 'Historian es el nombre que la industria le da a la base de datos de series de tiempo de planta.', cod: 'Simulador.historian · app.historian' },
+    { id: 'nota', n: 'Nota de voz', lado: 'planta', que: 'Un audio WAV de 16 kHz con ruido de planta que graba el operador, con fotos si sacó.', hace: 'Se anuncia en planta/recorridas con la URL del audio y de las fotos. Puede mezclar varios equipos y datos en cualquier orden.', porque: 'Es la entrada del parte por voz.', nombre: 'Como las notas de voz de cualquier teléfono.', cod: 'NotaRecorrida · operador.py · audio.py' },
+    { id: 'verdad', n: 'Parte esperado (verdad de campo)', lado: 'planta', que: 'Lo que tendría que salir de cada nota: equipo, variable, valor, unidad, observación y foto.', hace: 'Queda en /api/verdad para la suite de evaluación, junto con los desvíos de cada cierre de contratista.', porque: 'Para medir aciertos sin que nadie tenga que transcribir audios a mano.', nombre: 'Verdad de campo es la traducción de ground truth: lo que de verdad pasó.', cod: 'Nota.esperado · app.verdad' },
+    { id: 'planilla', n: 'Planilla de papel', lado: 'planta', que: 'La hoja donde el operador anota a mano cada recorrida del turno, con sus abreviaturas: B2, Filt B, P desc, ΔP.', hace: 'Cerca de una fila de cada diez sale con un error: un dígito invertido, otra unidad, algo ilegible o un redondeo. Entre 25 y 90 minutos después de terminar el turno se carga al sistema por planta/planillas.', porque: 'Es cómo se trabaja hoy, antes del parte por voz. Sirve para comparar y para ver el problema que resuelve el TP.', nombre: 'Planilla, como se le dice en campo al formulario en papel.', cod: 'planta_sim/planilla.py · /api/planillas' },
+    { id: 'cierre', n: 'Nota de cierre', lado: 'planta', que: 'La nota de voz del técnico al terminar una orden: qué hizo, qué usó, cómo dio la prueba y cuántas horas fueron.', hace: 'Se publica en planta/cierres con la orden, el técnico, la empresa, el audio y una foto.', porque: 'Es la entrada del cierre y la certificación del enunciado.', nombre: 'Cerrar la orden es dar por terminado el trabajo.', cod: 'NotaCierre · Simulador._emitir_cierre' },
+  ]},
+  { g: 'La infraestructura', items: [
+    { id: 'broker', n: 'Broker MQTT', lado: 'planta', que: 'Un servidor Mosquitto que reparte mensajes entre quien publica y quien escucha.', hace: 'La planta publica en planta/… y el sistema del cursante en sistema/…. Desde la red de planta es broker:1883.', porque: 'MQTT es el protocolo de mensajería más usado en plantas industriales: liviano y tolerante a cortes.', nombre: 'Broker es el intermediario. MQTT viene de MQ Telemetry Transport.', cod: 'planta/broker/mosquitto.conf' },
+    { id: 'topico', n: 'Tópico', lado: 'planta', que: 'La dirección de un mensaje MQTT, por ejemplo planta/sensores/B-102/vibracion.', hace: 'Quien escucha se suscribe a los tópicos que le interesan; planta/# escucha todo lo de la planta.', porque: 'Separa cada tipo de mensaje sin tener que conocer quién lo manda.', nombre: 'Del inglés topic: el tema del mensaje.', cod: 'planta_contrato.Topicos' },
+    { id: 'enlace', n: 'Enlace', lado: 'planta', que: 'El único camino de la red de planta a internet: un proxy en enlace:3128.', hace: 'Deja salir o corta todo según el escenario. Cuando cae, rechaza las conexiones nuevas y corta las abiertas. Agrega la latencia de un radioenlace.', porque: 'El enunciado dice que el enlace se corta varias veces por semana y puede quedar caído horas.', nombre: 'Enlace de datos, como se le dice al radioenlace o satélite que une la planta con la base.', cod: 'planta/enlace/enlace.py' },
+    { id: 'red', n: 'Red planta-lan', lado: 'planta', que: 'La red local de la planta en Docker, sin salida a internet.', hace: 'Ahí van el broker, la planta y todo lo que el cursante quiera correr en la PC de planta.', porque: 'Garantiza que lo de planta no pueda usar la nube sin pasar por el enlace.', nombre: 'LAN es red de área local.', cod: 'docker-compose.yml · networks' },
+    { id: 'pc', n: 'PC de planta', lado: 'cursante', que: 'La computadora de la sala de control: sin GPU, 4 núcleos y 8 GB para el sistema.', hace: 'Corre lo que el cursante decida dejar en planta, en contenedores limitados a esos recursos y con la etiqueta academia.planta=pc.', porque: 'Todo lo que tiene que andar sin enlace corre acá.', nombre: 'Así le dicen en campo a la PC de la sala de control.', cod: 'docs/contrato.md' },
+    { id: 'contrato', n: 'Contrato', lado: 'cursante', que: 'Los modelos Pydantic de cada mensaje que va y viene entre la planta y el sistema del cursante.', hace: 'La planta valida cada mensaje del cursante contra el contrato y registra los inválidos en /api/registro.', porque: 'Es lo único fijo: el resto de la arquitectura lo decide el cursante.', nombre: 'Contrato de integración: el acuerdo de cómo se hablan dos sistemas.', cod: 'contrato/planta_contrato · pip install' },
+  ]},
+  { g: 'Lo que publica el sistema del cursante', items: [
+    { id: 'tablet', n: 'Tablet del operador', lado: 'cursante', que: 'La pantalla que el operador lleva en la recorrida. En el visor se ve en su mano y en grande, con lo que muestra.', hace: 'Muestra lo que el sistema del cursante le manda por sistema/tablet (un texto, el borrador del parte, opciones) y reproduce su audio. Si el sistema no manda audio, lo lee con una voz genérica.', porque: 'El enunciado pide que el operador revise el parte y lo confirme o lo corrija. La tablet es un terminal: qué se muestra, qué se pregunta y con qué voz lo decide el cursante.', nombre: 'Es la tablet de campo del operador.', cod: 'MensajeTablet · visor/src/tablet.js' },
+    { id: 'respuesta', n: 'Respuesta del operador', lado: 'planta', que: 'Lo que el operador virtual contesta en la tablet, en voz y en texto libre, como se habla en campo.', hace: 'Compara el borrador con lo que de verdad vio y confirma ("Sí, confirmo") o corrige ("No, la uno estaba en ciento quince kilos"); elige entre opciones según el estado real de la planta. Se publica en planta/respuestas.', porque: 'Sin alguien que conteste, la confirmación y la desambiguación del enunciado no se pueden probar. Cada respuesta queda en la verdad de campo con lo que el operador encontró mal.', nombre: 'Es la respuesta del operador a lo que le muestra el sistema.', cod: 'RespuestaOperador · planta_sim/dialogo.py' },
+    { id: 'ambiguedad', n: 'Ambigüedad', lado: 'planta', que: 'Algo de una nota que el sistema no puede resolver solo: "la bomba" sin decir cuál, o un diferencial dicho "dieciocho" en lugar de "uno ocho".', hace: 'El operador virtual las mete en algunas notas, con su propio azar y semilla, y quedan marcadas en la verdad de campo.', porque: 'Para medir si el sistema pregunta cuando tiene que preguntar, y si no pregunta de más.', nombre: 'Lo que admite más de una lectura.', cod: 'OperadorVirtual._ambiguar' },
+    { id: 'parte', n: 'Parte', lado: 'cursante', que: 'El registro de una recorrida: equipo, variable, valor, unidad, hora, observación y fotos. Empieza en Borrador y pasa a Confirmado.', hace: 'Recién confirmado genera eventos.', porque: 'Reemplaza a la planilla de papel.', nombre: 'Parte diario o parte de recorrida: el informe del operador.', cod: 'Enunciado · sección A' },
+    { id: 'evento', n: 'Evento', lado: 'cursante', que: 'El resultado de evaluar un parte o un desvío de sensor: Sin novedad, Escalado o Alerta de seguridad.', hace: 'Se publica en sistema/eventos. El id es idempotente: publicarlo dos veces es el mismo evento.', porque: 'Es lo que la corrección compara contra la verdad de campo.', nombre: 'Algo que pasó y quedó registrado.', cod: 'EventoSistema' },
+    { id: 'reglas', n: 'Reglas de aprobación', lado: 'cursante', que: 'Las cinco condiciones del enunciado para aprobar una orden sin intervención humana: tarea estándar, inyección que se mantiene, stock en el yacimiento, menos de USD 2.500 y personal propio.', hace: 'Si se cumplen todas, la orden pasa a Aprobada. Si no, queda Pendiente con el motivo.', porque: 'Tienen que estar en código: ninguna nota de voz, comentario o manual puede aprobar una orden.', nombre: 'Reglas de negocio, como se las llama en sistemas.', cod: 'Enunciado · secciones D y F' },
+    { id: 'orden', n: 'Orden de trabajo', lado: 'cursante', que: 'El pedido a mantenimiento: equipo, tareas, si detiene el equipo, si reduce la inyección, repuestos, ejecutor y evidencia.', hace: 'Se publica en sistema/ordenes cada vez que cambia de estado. Cuando pasa a Aprobada, la planta manda la cuadrilla.', porque: 'Es lo que hoy es un aviso que dice "la bomba 2 pierde".', nombre: 'OT, en el vocabulario de mantenimiento.', cod: 'OrdenSistema' },
+    { id: 'latido', n: 'Latido', lado: 'cursante', que: 'Un mensaje cada 30 segundos con el nombre del sistema, si tiene enlace y cuántos pendientes tiene sin sincronizar.', hace: 'El visor lo muestra en el panel del cursante.', porque: 'El enunciado pide mostrar qué quedó pendiente de sincronizar.', nombre: 'Heartbeat: la señal de que el sistema sigue vivo.', cod: 'EstadoSistema · sistema/estado' },
+  ]},
+  { g: 'La operadora y sus documentos', items: [
+    { id: 'planificador', n: 'Planificador de mantenimiento', lado: 'operadora', que: 'La persona de la operadora que recibe las órdenes y decide.', hace: 'Aprueba o rechaza las órdenes que quedaron pendientes. Mientras decide, el proceso queda suspendido y persistido.', porque: 'Es el humano en el circuito para lo que las reglas no aprueban solas.', nombre: 'Planifica el trabajo de mantenimiento.', cod: 'Enunciado · sección D' },
+    { id: 'inspector', n: 'Inspector', lado: 'operadora', que: 'La persona de la operadora que revisa el trabajo de la contratista.', hace: 'Compara el cierre con la orden y el contrato: lo certifica o lo observa.', porque: 'La contratista cobra recién cuando el inspector certifica.', nombre: 'Inspecciona el trabajo terminado.', cod: 'Enunciado · sección G' },
+    { id: 'habilita', n: 'Habilita', lado: 'operadora', que: 'El documento con número y monto que emite la certificación.', hace: 'Es lo que la contratista necesita para facturar. El monto sale de la orden y de la lista de precios del contrato, diga lo que diga el cierre.', porque: 'Une el trabajo técnico con el pago.', nombre: 'Así se le dice en la cuenca al documento que habilita a facturar.', cod: 'OrdenSistema.habilita · monto_habilita_usd' },
+  ]},
+  { g: 'Las herramientas', items: [
+    { id: 'visor', n: 'Visor 3D', lado: 'planta', que: 'La vista de la planta en el navegador, en localhost:8080.', hace: 'Muestra la planta en tiempo real: sol según la hora simulada, equipos con su estado, pérdidas, humo, el operador en recorrida, la cuadrilla y lo que publica el sistema del cursante.', porque: 'Para ver lo que pasa sin leer mensajes MQTT. Es solo para mirar.', nombre: 'Visor: donde se mira.', cod: 'visor/' },
+    { id: 'instructor', n: 'Panel de instructor', lado: 'planta', que: 'Los controles del visor que aparecen con ?instructor en la dirección.', hace: 'Cambia escenario y velocidad, corta enlace y luz, provoca fallas y muestra las fallas activas, que el cursante no ve.', porque: 'Para romper algo en vivo durante una clase.', nombre: 'Lo usa quien da la clase.', cod: 'visor/index.html · #instructor' },
+    { id: 'recorrido', n: 'Recorrido guiado', lado: 'planta', que: 'El tour de la planta que el visor ofrece la primera vez.', hace: 'Lleva la cámara por cada equipo y explica para qué está, por qué se llama así, cómo se trabaja hoy y qué protecciones de seguridad tiene.', porque: 'Para que el cursante entienda la planta antes de construir nada.', nombre: 'Como la recorrida del operador, pero para conocer la planta.', cod: 'visor/src/recorrido.js' },
+    { id: 'api', n: 'API de la planta', lado: 'planta', que: 'Los servicios HTTP del simulador en sim:8100, con la documentación en /docs.', hace: 'Entrega el historiador, la definición de la planta, las planillas, la verdad de campo, el registro de mensajes y los controles de la simulación.', porque: 'Lo que no es un flujo de mensajes se consulta por HTTP.', nombre: 'API: interfaz de programación.', cod: 'planta_sim/app.py' },
+  ]},
+];
+
+// ------------------------------------------------------------------ diagramas de flujo
+// tipo: term (inicio/fin), proc (paso), dec (decisión), cur (lo hace el cursante). x, y = centro.
+const W = 230, H = 56, DW = 250, DH = 92;
+
+function caja(n) {
+  const w = n.w ?? (n.tipo === 'dec' ? DW : W), h = n.h ?? (n.tipo === 'dec' ? DH : H);
+  return { ...n, w, h, l: n.x - w / 2, r: n.x + w / 2, t: n.y - h / 2, b: n.y + h / 2 };
+}
+function puerto(c, lado) {
+  return { t: [c.x, c.t], b: [c.x, c.b], l: [c.l, c.y], r: [c.r, c.y] }[lado];
+}
+function esc(t) { return String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function dibujar(id, nodos, flechas, alto) {
+  const N = Object.fromEntries(nodos.map((n) => [n.id, caja(n)]));
+  let s = `<svg viewBox="0 0 760 ${alto}" role="img" aria-label="Diagrama de flujo"><defs><marker id="m-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" style="fill:var(--muted)"/></marker></defs>`;
+  for (const f of flechas) {
+    const a = N[f.de], b = N[f.a];
+    const p0 = puerto(a, f.sale ?? 'b'), p1 = puerto(b, f.entra ?? 't');
+    const pts = [p0, ...(f.via ?? []), p1];
+    s += `<path class="flecha" d="M${pts.map((p) => p.join(' ')).join(' L')}" marker-end="url(#m-${id})"/>`;
+    if (f.txt) {
+      const [lx, ly] = f.pos ?? [p0[0] + 8, p0[1] + 16];
+      s += `<text class="rot ${f.clase ?? ''}" x="${lx}" y="${ly}">${esc(f.txt)}</text>`;
+    }
+  }
+  for (const c of Object.values(N)) {
+    const lineas = c.txt.split('\n');
+    const sub = c.sub ? 1 : 0;
+    const total = lineas.length + sub;
+    const y0 = c.y - ((total - 1) * 16) / 2 + 4.5;
+    let forma;
+    if (c.tipo === 'dec') forma = `<polygon points="${c.x},${c.t} ${c.r},${c.y} ${c.x},${c.b} ${c.l},${c.y}"/>`;
+    else forma = `<rect x="${c.l}" y="${c.t}" width="${c.w}" height="${c.h}" rx="${c.tipo === 'term' ? 26 : 2}"/>`;
+    const textos = lineas.map((l, i) => `<text class="t1" x="${c.x}" y="${y0 + i * 16}" text-anchor="middle">${esc(l)}</text>`).join('')
+      + (c.sub ? `<text class="t2" x="${c.x}" y="${y0 + lineas.length * 16}" text-anchor="middle">${esc(c.sub)}</text>` : '');
+    const g = `<g class="n ${c.tipo}">${forma}${textos}</g>`;
+    s += c.ref ? `<a href="#e-${c.ref}" aria-label="${esc(c.txt.replace('\n', ' '))}: ir a la ficha">${g}</a>` : g;
+  }
+  document.getElementById(id).innerHTML = s + '</svg>';
+}
+
+// 1 · De la falla al aviso
+dibujar('d1', [
+  { id: 'a', x: 190, y: 40, tipo: 'term', txt: 'Escenario, instructor o azar', ref: 'escenario' },
+  { id: 'b', x: 190, y: 130, tipo: 'proc', txt: 'Aparece una falla', sub: 'severidad 0,05', ref: 'falla' },
+  { id: 'c', x: 190, y: 220, tipo: 'proc', txt: 'La severidad crece', sub: 'a la tasa del escenario', ref: 'severidad' },
+  { id: 'd', x: 190, y: 340, tipo: 'dec', txt: '¿Lo mide un sensor\nconectado?', ref: 'lectura' },
+  { id: 'e', x: 560, y: 340, tipo: 'proc', txt: 'Se publica la lectura', sub: 'planta/sensores · historiador', ref: 'lectura' },
+  { id: 'f', x: 190, y: 480, tipo: 'dec', txt: '¿Le toca recorrida\nal operador?', ref: 'operador' },
+  { id: 'g', x: 560, y: 480, tipo: 'dec', txt: '¿La severidad alcanza\npara que lo note?', ref: 'operador' },
+  { id: 'h', x: 560, y: 610, tipo: 'proc', txt: 'Nota de voz y fotos', sub: 'planta/recorridas', ref: 'nota' },
+  { id: 'i', x: 560, y: 700, tipo: 'proc', txt: 'Fila en la planilla', sub: 'se carga al final del turno', ref: 'planilla' },
+  { id: 'j', x: 190, y: 640, tipo: 'dec', txt: '¿Pasa un límite\nde protección?', ref: 'proteccion' },
+  { id: 'k', x: 190, y: 780, tipo: 'proc', txt: 'Disparo de la bomba', sub: 'queda en estado disparo', ref: 'proteccion' },
+  { id: 'l', x: 190, y: 870, tipo: 'proc', txt: 'Arranca la reserva', sub: 'si está disponible', ref: 'reserva' },
+  { id: 'm', x: 560, y: 870, tipo: 'term', txt: 'La planta inyecta menos', sub: 'si no hay reserva', ref: 'reserva' },
+], [
+  { de: 'a', a: 'b' }, { de: 'b', a: 'c' }, { de: 'c', a: 'd' },
+  { de: 'd', a: 'e', sale: 'r', entra: 'l', txt: 'Sí', clase: 'si', pos: [322, 332] },
+  { de: 'd', a: 'f', txt: 'No', clase: 'no', pos: [200, 404] },
+  { de: 'e', a: 'f', sale: 'b', entra: 't', via: [[560, 410], [190, 410]] },
+  { de: 'f', a: 'g', sale: 'r', entra: 'l', txt: 'Sí', clase: 'si', pos: [322, 472] },
+  { de: 'g', a: 'h', txt: 'Sí', clase: 'si', pos: [570, 544] },
+  { de: 'h', a: 'i' },
+  { de: 'g', a: 'j', sale: 'r', entra: 'r', via: [[720, 480], [720, 560], [340, 560], [340, 640]], txt: 'No', clase: 'no', pos: [692, 472] },
+  { de: 'i', a: 'j', sale: 'l', entra: 'r', via: [[400, 700], [400, 640]] },
+  { de: 'f', a: 'j', txt: 'No', clase: 'no', pos: [200, 544] },
+  { de: 'j', a: 'k', txt: 'Sí', clase: 'si', pos: [200, 704] },
+  { de: 'k', a: 'l' }, { de: 'l', a: 'm', sale: 'r', entra: 'l', txt: 'sin reserva', clase: 'n2', pos: [330, 862] },
+  { de: 'j', a: 'c', sale: 'l', entra: 'l', via: [[40, 640], [40, 220]], txt: 'No: sigue empeorando', clase: 'no', pos: [48, 430] },
+], 920);
+
+// 2 · Lo que decide el sistema del cursante
+dibujar('d2', [
+  { id: 'a', x: 190, y: 40, tipo: 'term', txt: 'Nota de voz o lectura', sub: 'llega por MQTT', ref: 'nota' },
+  { id: 'b', x: 190, y: 130, tipo: 'cur', txt: 'Parte en borrador', sub: 'equipo, variable, valor, unidad', ref: 'parte' },
+  { id: 'x', x: 190, y: 250, tipo: 'dec', txt: '¿Algo ambiguo o\nfuera de rango?', ref: 'ambiguedad' },
+  { id: 'y', x: 560, y: 250, tipo: 'cur', txt: 'Pregunta en la tablet', sub: 'opciones o aclaración', ref: 'tablet' },
+  { id: 'c', x: 190, y: 380, tipo: 'cur', txt: 'Borrador en la tablet', sub: 'el sistema lo muestra y lo lee', ref: 'tablet' },
+  { id: 'z', x: 190, y: 470, tipo: 'proc', txt: 'El operador contesta', sub: 'por voz, en texto libre', ref: 'respuesta' },
+  { id: 'w', x: 190, y: 590, tipo: 'dec', txt: '¿Confirma el\nborrador?', ref: 'respuesta' },
+  { id: 'v', x: 560, y: 590, tipo: 'cur', txt: 'El sistema corrige', sub: 'según lo que dijo', ref: 'parte' },
+  { id: 'd', x: 190, y: 720, tipo: 'dec', txt: '¿Condición\ninsegura?', ref: 'insegura' },
+  { id: 'e', x: 560, y: 720, tipo: 'term', txt: 'Alerta de seguridad', sub: 'en el momento, sin enlace', ref: 'evento' },
+  { id: 'f', x: 190, y: 860, tipo: 'dec', txt: '¿Fuera de rango\no anomalía sostenida?', ref: 'evento' },
+  { id: 'g', x: 560, y: 860, tipo: 'term', txt: 'Sin novedad', sub: 'queda registrado', ref: 'evento' },
+  { id: 'h', x: 190, y: 980, tipo: 'cur', txt: 'Evento escalado', sub: 'parte, fotos y tendencia', ref: 'evento' },
+  { id: 'i', x: 190, y: 1070, tipo: 'cur', txt: 'Orden en borrador', sub: 'manual, historial y repuestos', ref: 'orden' },
+  { id: 'j', x: 190, y: 1190, tipo: 'dec', txt: '¿Cumple las cinco\nreglas de aprobación?', ref: 'reglas' },
+  { id: 'k', x: 560, y: 1190, tipo: 'cur', txt: 'Pendiente de aprobación', sub: 'proceso suspendido y persistido', ref: 'planificador' },
+  { id: 'l', x: 560, y: 1310, tipo: 'dec', txt: '¿El planificador\nla aprueba?', ref: 'planificador' },
+  { id: 'm', x: 190, y: 1430, tipo: 'term', txt: 'Aprobada', sub: 'sigue en el diagrama 3', ref: 'orden' },
+  { id: 'n', x: 560, y: 1430, tipo: 'term', txt: 'Rechazada', sub: 'fin', ref: 'orden' },
+], [
+  { de: 'a', a: 'b' }, { de: 'b', a: 'x' },
+  { de: 'x', a: 'y', sale: 'r', entra: 'l', txt: 'Sí', clase: 'si', pos: [322, 242] },
+  { de: 'y', a: 'b', sale: 't', entra: 'r', via: [[560, 130]], txt: 'con la respuesta, rehace el borrador', clase: 'n2', pos: [400, 120] },
+  { de: 'x', a: 'c', txt: 'No', clase: 'no', pos: [200, 314] },
+  { de: 'c', a: 'z' }, { de: 'z', a: 'w' },
+  { de: 'w', a: 'v', sale: 'r', entra: 'l', txt: 'No, corrige', clase: 'no', pos: [322, 582] },
+  { de: 'v', a: 'c', sale: 't', entra: 'r', via: [[560, 380]], txt: 'lo vuelve a mostrar', clase: 'n2', pos: [440, 372] },
+  { de: 'w', a: 'd', txt: 'Sí, confirma', clase: 'si', pos: [200, 654] },
+  { de: 'd', a: 'e', sale: 'r', entra: 'l', txt: 'Sí', clase: 'si', pos: [322, 712] },
+  { de: 'd', a: 'f', txt: 'No', clase: 'no', pos: [200, 784] },
+  { de: 'f', a: 'g', sale: 'r', entra: 'l', txt: 'No', clase: 'no', pos: [322, 852] },
+  { de: 'f', a: 'h', txt: 'Sí', clase: 'si', pos: [200, 924] },
+  { de: 'h', a: 'i' }, { de: 'i', a: 'j' },
+  { de: 'j', a: 'k', sale: 'r', entra: 'l', txt: 'No', clase: 'no', pos: [322, 1182] },
+  { de: 'j', a: 'm', txt: 'Sí', clase: 'si', pos: [200, 1254] },
+  { de: 'k', a: 'l' },
+  { de: 'l', a: 'm', sale: 'l', entra: 'r', via: [[380, 1310], [380, 1430]], txt: 'Sí', clase: 'si', pos: [394, 1302] },
+  { de: 'l', a: 'n', txt: 'No', clase: 'no', pos: [570, 1374] },
+], 1480);
+
+// 3 · De la orden aprobada al cierre
+dibujar('d3', [
+  { id: 'a', x: 190, y: 40, tipo: 'term', txt: 'Orden aprobada', sub: 'en sistema/ordenes', ref: 'orden' },
+  { id: 'b', x: 190, y: 130, tipo: 'proc', txt: 'Sale la cuadrilla', sub: 'llega en 45 a 180 min', ref: 'cuadrilla' },
+  { id: 'c', x: 190, y: 250, tipo: 'dec', txt: '¿La tarea detiene\nel equipo?', ref: 'cuadrilla' },
+  { id: 'd', x: 560, y: 250, tipo: 'proc', txt: 'Equipo en mantenimiento', sub: 'arranca la reserva si puede', ref: 'reserva' },
+  { id: 'e', x: 190, y: 380, tipo: 'proc', txt: 'Reparación', sub: 'las horas de la tarea', ref: 'cuadrilla' },
+  { id: 'f', x: 190, y: 470, tipo: 'proc', txt: 'La falla se resuelve', sub: 'el equipo queda de reserva', ref: 'falla' },
+  { id: 'g', x: 190, y: 560, tipo: 'proc', txt: 'Nota de cierre', sub: 'planta/cierres', ref: 'cierre' },
+  { id: 'h', x: 190, y: 680, tipo: 'dec', txt: '¿Lo hizo personal\npropio?', ref: 'contratista' },
+  { id: 'i', x: 190, y: 800, tipo: 'cur', txt: 'Cierra el supervisor', sub: 'con las diferencias a la vista', ref: 'cierre' },
+  { id: 'j', x: 560, y: 680, tipo: 'cur', txt: 'Revisa el inspector', sub: 'cierre contra orden y contrato', ref: 'inspector' },
+  { id: 'k', x: 560, y: 800, tipo: 'dec', txt: '¿Hay diferencias\nque observar?', ref: 'inspector' },
+  { id: 'l', x: 560, y: 930, tipo: 'term', txt: 'Certificada', sub: 'emite la habilita', ref: 'habilita' },
+  { id: 'm', x: 190, y: 930, tipo: 'term', txt: 'Observada', sub: 'vuelve a la contratista', ref: 'contratista' },
+], [
+  { de: 'a', a: 'b' }, { de: 'b', a: 'c' },
+  { de: 'c', a: 'd', sale: 'r', entra: 'l', txt: 'Sí', clase: 'si', pos: [322, 242] },
+  { de: 'c', a: 'e', txt: 'No', clase: 'no', pos: [200, 314] },
+  { de: 'd', a: 'e', sale: 'b', entra: 'r', via: [[560, 380]] },
+  { de: 'e', a: 'f' }, { de: 'f', a: 'g' }, { de: 'g', a: 'h' },
+  { de: 'h', a: 'i', txt: 'Sí', clase: 'si', pos: [200, 744] },
+  { de: 'h', a: 'j', sale: 'r', entra: 'l', txt: 'No, contratista', clase: 'no', pos: [322, 672] },
+  { de: 'j', a: 'k' },
+  { de: 'k', a: 'l', txt: 'No', clase: 'no', pos: [570, 864] },
+  { de: 'k', a: 'm', sale: 'l', entra: 'r', via: [[360, 800], [360, 930]], txt: 'Sí', clase: 'si', pos: [374, 792] },
+], 980);
+
+// ------------------------------------------------------------------ glosario consultable
+const cuerpo = document.getElementById('glosario-cuerpo');
+const LADO = { planta: 'Planta', cursante: 'Cursante', operadora: 'Operadora' };
+cuerpo.innerHTML = G.map((grupo) => `<div class="grupo-gl"><h3>${esc(grupo.g)}</h3><div class="fichas">${grupo.items.map((e) => `
+  <article class="ficha ${e.lado}" id="e-${e.id}" data-lado="${e.lado}" data-texto="${esc([e.n, e.que, e.hace, e.porque, e.nombre].join(' ').toLowerCase())}">
+    <header><h4>${esc(e.n)}</h4><span class="lado">${LADO[e.lado]}</span></header>
+    <dl><div><dt>Qué es</dt><dd>${esc(e.que)}</dd></div><div><dt>Qué hace</dt><dd>${esc(e.hace)}</dd></div>
+    <div><dt>Por qué está</dt><dd>${esc(e.porque)}</dd></div><div><dt>Por qué se llama así</dt><dd>${esc(e.nombre)}</dd></div></dl>
+    <div class="codigo">${esc(e.cod)}</div>
+  </article>`).join('')}</div></div>`).join('');
+
+const buscar = document.getElementById('buscar');
+const contador = document.getElementById('contador');
+let filtro = 'todos';
+function aplicar() {
+  const q = buscar.value.trim().toLowerCase();
+  let n = 0;
+  cuerpo.querySelectorAll('.ficha').forEach((f) => {
+    const ok = (filtro === 'todos' || f.dataset.lado === filtro) && (!q || f.dataset.texto.includes(q));
+    f.hidden = !ok;
+    if (ok) n++;
+  });
+  cuerpo.querySelectorAll('.grupo-gl').forEach((g) => { g.hidden = !g.querySelector('.ficha:not([hidden])'); });
+  contador.textContent = n === 1 ? '1 entrada' : `${n} entradas`;
+}
+buscar.addEventListener('input', aplicar);
+document.querySelectorAll('.filtros button').forEach((b) => b.addEventListener('click', () => {
+  filtro = b.dataset.f;
+  document.querySelectorAll('.filtros button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  aplicar();
+}));
+// Al llegar desde un diagrama a una ficha filtrada, la mostramos igual.
+addEventListener('hashchange', () => {
+  const f = document.querySelector(location.hash);
+  if (f && f.hidden) { buscar.value = ''; filtro = 'todos'; document.querySelector('.filtros [data-f="todos"]').click(); f.scrollIntoView(); }
+});
+aplicar();
+</script>

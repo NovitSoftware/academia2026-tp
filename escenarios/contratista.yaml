@@ -1,0 +1,10 @@
+nombre: contratista
+descripcion: >
+  El rodamiento de la uno empieza a fallar. La orden no es estándar, la hace la contratista y cuesta
+  más de USD 2.500: va al planificador. El cierre de la contratista puede traer diferencias contra la orden.
+semilla: 505
+velocidad: 360   # 10 s reales = 1 hora de planta
+inicio: "2026-11-09T06:30:00-03:00"
+duracion: 48h
+eventos:
+  - {en: 1h, accion: falla, codigo: F03, equipo: B-101, severidad: 0.1, tasa_h: 0.03}

@@ -1,0 +1,13 @@
+nombre: tormenta-perfecta
+descripcion: >
+  La reserva está en mantenimiento, la dos empieza a golpetear y el enlace se cae cuatro horas justo
+  cuando la falla empeora. Una orden que detiene la dos reduce la inyección y no se puede aprobar sola.
+semilla: 202
+velocidad: 360   # 10 s reales = 1 hora de planta
+inicio: "2026-11-04T06:30:00-03:00"
+duracion: 30h
+eventos:
+  - {en: 0m, accion: reserva_no_disponible, equipo: B-103}
+  - {en: 30m, accion: falla, codigo: F02, equipo: B-102, severidad: 0.15, tasa_h: 0.06}
+  - {en: 5h, accion: enlace, estado: caido, duracion: 4h}
+  - {en: 20h, accion: reserva_disponible, equipo: B-103}
